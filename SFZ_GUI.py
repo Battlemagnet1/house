@@ -63,7 +63,7 @@ class IDCardManager:
     
     def get_area_info(self, id_card):
         """
-        获取地区信息（整合前四位省级信息和前六位市级信息）
+        获取地区信息（显示完整的省-市-区三级结构）
         :param id_card: 身份证号码
         :return: 整合的地区信息
         """
@@ -75,12 +75,22 @@ class IDCardManager:
         province_code = id_card[:2] + "0000"
         province_name = self.AREA_CODES.get(province_code, "未知省份")
         
-        # 整合前四位和前六位信息
+        # 获取前四位市级信息（前四位+00）
+        city_code = id_card[:4] + "00"
+        city_name = self.AREA_CODES.get(city_code, "")
+        
+        # 构建完整的地区层级结构
         if full_area.startswith(province_name):
             # 如果完整地区信息已经包含省份信息，直接返回完整信息
             return full_area
+        elif city_name and full_area.startswith(city_name):
+            # 如果完整地区信息包含市级信息，显示省-市-区
+            return f"{province_name} - {full_area}"
+        elif city_name:
+            # 显示省-市-区三级结构
+            return f"{province_name} - {city_name} - {full_area}"
         else:
-            # 否则整合显示：省份 + 完整地区
+            # 没有找到市级信息，显示省-区
             return f"{province_name} - {full_area}"
         
     
